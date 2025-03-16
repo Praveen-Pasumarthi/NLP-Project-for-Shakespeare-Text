@@ -1,5 +1,7 @@
 import re
 import numpy as np
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 
 def preprocess_text(file_path, save_data=True):
@@ -11,7 +13,7 @@ def preprocess_text(file_path, save_data=True):
         save_data (bool): Whether to save the processed data to files.
 
     Returns:
-        tuple: X (predictors), y (labels), tokenizer (dict), max_sequence_length
+        tuple: X (predictors), y (labels), tokenizer, max_sequence_length
     """
     # Step 1: Load the dataset
     with open(file_path, 'r') as file:
@@ -22,25 +24,27 @@ def preprocess_text(file_path, save_data=True):
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()  # Replace multiple spaces with a single space
 
     # Step 3: Tokenize the text
-    words = cleaned_text.split()
-    tokenizer = {word: i + 1 for i, word in enumerate(set(words))}  # Create a word-to-index dictionary
-    total_words = len(tokenizer) + 1
+    tokenizer = Tokenizer()
+    tokenizer.fit_on_texts([cleaned_text])
+
+    # Total number of unique words
+    total_words = len(tokenizer.word_index) + 1
 
     # Step 4: Create input sequences
-    tokenized_text = [tokenizer[word] for word in words]
     input_sequences = []
-    for i in range(1, len(tokenized_text)):
-        input_sequences.append(tokenized_text[:i + 1])
+    for line in cleaned_text.split('.'):  # Split by sentences for meaningful sequences
+        token_list = tokenizer.texts_to_sequences([line])[0]
+        for i in range(1, len(token_list)):
+            n_gram_sequence = token_list[:i + 1]
+            input_sequences.append(n_gram_sequence)
 
     # Step 5: Pad sequences
-    max_sequence_length = max(len(seq) for seq in input_sequences)
-    padded_sequences = np.zeros((len(input_sequences), max_sequence_length), dtype=int)
-    for i, seq in enumerate(input_sequences):
-        padded_sequences[i, -len(seq):] = seq
+    max_sequence_length = max([len(seq) for seq in input_sequences])
+    input_sequences = pad_sequences(input_sequences, maxlen=max_sequence_length, padding='pre')
 
     # Split into predictors (X) and labels (y)
-    X = padded_sequences[:, :-1]
-    y = padded_sequences[:, -1]
+    X = input_sequences[:, :-1]
+    y = input_sequences[:, -1]
 
     # Save data and tokenizer if needed
     if save_data:
@@ -57,8 +61,7 @@ def preprocess_text(file_path, save_data=True):
 
 
 if __name__ == "__main__":
-    # Path to the provided dataset
-    file_path = "shakespeare.txt"
+    file_path = "path_to_your_shakespeare.txt"  # Replace with the actual path to your dataset file
     X, y, tokenizer, max_sequence_length = preprocess_text(file_path)
 
     # Verify data shapes
