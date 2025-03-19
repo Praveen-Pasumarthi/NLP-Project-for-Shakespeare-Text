@@ -1,69 +1,46 @@
 import re
-import numpy as np
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
+import torch
+from torch.nn.utils.rnn import pad_sequence
 
-def preprocess_text(file_path, save_data=True):
-    """
-    Preprocess the dataset by cleaning, tokenizing, and generating input sequences.
+# Load dataset
+file_path = "shakespeare.txt"
+with open(file_path, "r", encoding="utf-8") as file:
+    text = file.read().lower()
 
-    Args:
-        file_path (str): Path to the text file containing the dataset.
-        save_data (bool): Whether to save the processed data to files.
+# Clean text (keep only letters, spaces, and apostrophes)
+text = re.sub(r"[^a-z\s']", "", text)
+text = re.sub(r"\s+", " ", text).strip()
 
-    Returns:
-        tuple: X (predictors), y (labels), tokenizer, max_sequence_length
-    """
-    # Step 1: Load the dataset
-    with open(file_path, 'r') as file:
-        text = file.read().lower()
+# Tokenization using built-in Python `split()`
+tokens = text.split()
 
-    # Step 2: Clean the text (remove unwanted characters and extra spaces)
-    cleaned_text = re.sub(r'[^a-z\s]', '', text)  # Keep only lowercase letters and spaces
-    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()  # Replace multiple spaces with a single space
+# Create word-index mappings
+word_to_index = {word: idx + 1 for idx, word in enumerate(set(tokens))}
+index_to_word = {idx: word for word, idx in word_to_index.items()}
+vocab_size = len(word_to_index) + 1  # Add 1 for padding
 
-    # Step 3: Tokenize the text
-    tokenizer = Tokenizer()
-    tokenizer.fit_on_texts([cleaned_text])
+# Convert text to sequences in chunks
+input_sequences = []
+chunk_size = 5000  # Process 5000 tokens at a time
+for i in range(0, len(tokens) - chunk_size, chunk_size):
+    seq = [word_to_index[word] for word in tokens[i: i + chunk_size]]
+    input_sequences.append(seq)
 
-    # Total number of unique words
-    total_words = len(tokenizer.word_index) + 1
+# Pad sequences to uniform length
+padded_sequences = [torch.tensor(seq) for seq in input_sequences]
+padded_sequences = pad_sequence(padded_sequences, batch_first=True, padding_value=0)
 
-    # Step 4: Create input sequences
-    input_sequences = []
-    for line in cleaned_text.split('.'):  # Split by sentences for meaningful sequences
-        token_list = tokenizer.texts_to_sequences([line])[0]
-        for i in range(1, len(token_list)):
-            n_gram_sequence = token_list[:i + 1]
-            input_sequences.append(n_gram_sequence)
+# Split into X (predictors) and y (labels)
+X = padded_sequences[:, :-1]
+y = padded_sequences[:, -1]
 
-    # Step 5: Pad sequences
-    max_sequence_length = max([len(seq) for seq in input_sequences])
-    input_sequences = pad_sequences(input_sequences, maxlen=max_sequence_length, padding='pre')
+# Save processed data
+torch.save(X, "X.pt")
+torch.save(y, "y.pt")
+with open("word_to_index.pkl", "wb") as f:
+    pickle.dump(word_to_index, f)
+with open("index_to_word.pkl", "wb") as f:
+    pickle.dump(index_to_word, f)
 
-    # Split into predictors (X) and labels (y)
-    X = input_sequences[:, :-1]
-    y = input_sequences[:, -1]
-
-    # Save data and tokenizer if needed
-    if save_data:
-        np.save('X.npy', X)
-        np.save('y.npy', y)
-        with open('tokenizer.pkl', 'wb') as tokenizer_file:
-            pickle.dump(tokenizer, tokenizer_file)
-
-    print("Data preprocessing complete!")
-    print(f"Vocabulary size: {total_words}")
-    print(f"Max sequence length: {max_sequence_length}")
-
-    return X, y, tokenizer, max_sequence_length
-
-
-if __name__ == "__main__":
-    file_path = "path_to_your_shakespeare.txt"  # Replace with the actual path to your dataset file
-    X, y, tokenizer, max_sequence_length = preprocess_text(file_path)
-
-    # Verify data shapes
-    print(f"Shape of X (predictors): {X.shape}")
-    print(f"Shape of y (labels): {y.shape}")
+print("✅ Preprocessing complete! Data saved successfully.")
