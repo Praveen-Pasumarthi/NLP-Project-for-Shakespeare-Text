@@ -54,7 +54,7 @@ def convert_to_shakespeare(text):
 st.title("🎭 Shakespearean Text Converter & Generator")
 
 # User selects the mode
-option = st.radio("Choose an option:", ["Generate Shakespearean Text", "Convert Modern to Shakespearean"])
+option = st.radio("Choose an option:", ["Convert Modern to Shakespearean"])
 
 if option == "Generate Shakespearean Text":
     st.write("Enter a seed phrase and generate Shakespearean-style text!")
