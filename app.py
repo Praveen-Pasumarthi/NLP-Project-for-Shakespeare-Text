@@ -2,11 +2,28 @@ import streamlit as st
 
 # Dictionary for word replacement (Modern → Shakespearean)
 word_map = {
-    "you": "thou", "your": "thy", "are": "art", "have": "hath",
-    "do": "doth", "does": "dost", "my": "mine", "is": "be",
-    "yes": "aye", "no": "nay", "very": "verily", "good": "fair",
+    "you": "thou", "your": "thy", "yours": "thine", "are": "art", "have": "hath",
+    "do": "doth", "does": "dost", "my": "mine", "is": "be", "was": "wast",
+    "were": "wert", "yes": "aye", "no": "nay", "very": "verily", "good": "fair",
     "hello": "good morrow", "friend": "companion", "love": "affection",
-    "man": "gentleman", "woman": "lady", "king": "sovereign",
+    "man": "gentleman", "woman": "lady", "king": "sovereign", "queen": "majesty",
+    "strong": "stout", "beautiful": "comely", "happy": "merry", "angry": "vexed",
+    "sad": "forlorn", "rich": "opulent", "poor": "destitute", "smart": "learned",
+    "stupid": "foolish", "food": "victuals", "drink": "ale", "house": "abode",
+    "dangerous": "perilous", "truth": "verity", "lie": "falsehood",
+    "quick": "swift", "slow": "sluggish", "now": "anon", "soon": "presently",
+    "always": "evermore", "never": "ne'er", "before": "ere", "after": "henceforth",
+    "why": "wherefore", "because": "for", "how": "how dost", "think": "reckon",
+    "speak": "utter", "listen": "hark", "see": "behold", "give": "bestow",
+    "ask": "beseech", "curse": "besmirch", "promise": "vow", "goodbye": "fare thee well",
+    "come": "approach", "go": "depart", "wait": "tarry", "stop": "halt",
+    "sleep": "slumber", "awake": "rouse", "fight": "duel", "win": "prevail",
+    "lose": "succumb", "understand": "comprehend", "wish": "desire", "pray": "entreat",
+    "hate": "abhor", "fear": "dread", "enemy": "adversary", "fool": "knave",
+    "young": "youthful", "old": "ancient", "small": "petite", "big": "grand",
+    "father": "sire", "mother": "madam", "child": "offspring", "boy": "lad",
+    "girl": "lass", "son": "heir", "daughter": "maid", "brother": "kinsman",
+    "sister": "kinswoman", "husband": "consort", "wife": "spouse"
 }
 
 # Function to convert modern English to Shakespearean-style
