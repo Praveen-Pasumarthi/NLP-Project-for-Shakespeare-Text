@@ -18,11 +18,11 @@ tokens = text.split()
 # Create word-index mappings
 word_to_index = {word: idx + 1 for idx, word in enumerate(set(tokens))}
 index_to_word = {idx: word for word, idx in word_to_index.items()}
-vocab_size = len(word_to_index) + 1  # Add 1 for padding
+vocab_size = len(word_to_index) + 1 
 
 # Convert text to sequences in chunks
 input_sequences = []
-chunk_size = 5000  # Process 5000 tokens at a time
+chunk_size = 5000 
 for i in range(0, len(tokens) - chunk_size, chunk_size):
     seq = [word_to_index[word] for word in tokens[i: i + chunk_size]]
     input_sequences.append(seq)

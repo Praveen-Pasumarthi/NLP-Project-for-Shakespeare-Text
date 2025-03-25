@@ -18,7 +18,7 @@ model.eval()
 def generate_text(seed_text, next_words=20):
     words = seed_text.lower().split()
     for _ in range(next_words):
-        token_list = [word_to_index.get(word, 0) for word in words]  # Convert words to indices
+        token_list = [word_to_index.get(word, 0) for word in words]
         token_list = torch.tensor(token_list).unsqueeze(0)
 
         with torch.no_grad():

@@ -10,8 +10,8 @@ X = np.load('X.npy')
 y = np.load('y.npy')
 
 # Convert to PyTorch tensors
-X = torch.tensor(X, dtype=torch.long)  # Long type for embedding layer
-y = torch.tensor(np.argmax(y, axis=1), dtype=torch.long)  # Convert one-hot to indices
+X = torch.tensor(X, dtype=torch.long) 
+y = torch.tensor(np.argmax(y, axis=1), dtype=torch.long)  
 
 # Define a custom dataset
 class TextDataset(Dataset):
@@ -39,11 +39,11 @@ class LSTMModel(nn.Module):
     def forward(self, x):
         embedded = self.embedding(x)
         output, _ = self.lstm(embedded)
-        output = self.fc(output[:, -1, :])  # Take the output of the last LSTM cell
+        output = self.fc(output[:, -1, :]) 
         return output
 
 # Model parameters
-vocab_size = X.max().item() + 1  # Total unique words
+vocab_size = X.max().item() + 1  
 embed_size = 100
 hidden_size = 150
 output_size = vocab_size
